@@ -952,7 +952,7 @@ func DoCall(ctx context.Context, b Backend, args TransactionArgs, blockNrOrHash 
 		return nil, err
 	}
 
-	// Arbitrum: mark the reason for this call
+	// Mantle: mark the reason for this call
 	var txRunMode types.MessageRunMode
 	if gasEstimation {
 		txRunMode = types.MessageGasEstimationMode
@@ -961,7 +961,7 @@ func DoCall(ctx context.Context, b Backend, args TransactionArgs, blockNrOrHash 
 	}
 	msg.TxRunMode = txRunMode
 
-	// Arbitrum: support NodeInterface.sol by swapping out the message if needed
+	// Mantle: support NodeInterface.sol by swapping out the message if needed
 	var res *core.ExecutionResult
 	msg, res, err = core.InterceptRPCMessage(msg, ctx, state, header, b)
 	if err != nil || res != nil {
@@ -995,7 +995,7 @@ func DoCall(ctx context.Context, b Backend, args TransactionArgs, blockNrOrHash 
 		return result, fmt.Errorf("err: %w (supplied gas %d)", err, msg.Gas())
 	}
 
-	// Arbitrum: a tx can schedule another (see retryables)
+	// Mantle: a tx can schedule another (see retryables)
 	scheduled := result.ScheduledTxes
 	for gasEstimation && len(scheduled) > 0 {
 		// make a new EVM for the scheduled Tx (an EVM must never be reused)
@@ -1009,7 +1009,7 @@ func DoCall(ctx context.Context, b Backend, args TransactionArgs, blockNrOrHash 
 		}()
 
 		// This will panic if the scheduled tx is signed, but we only schedule unsigned ones
-		msg, err := scheduled[0].AsMessage(types.NewArbitrumSigner(nil), header.BaseFee)
+		msg, err := scheduled[0].AsMessage(types.NewMantleSigner(nil), header.BaseFee)
 		if err != nil {
 			return nil, err
 		}
@@ -1155,7 +1155,7 @@ func DoEstimateGas(ctx context.Context, b Backend, args TransactionArgs, blockNr
 		}
 	}
 
-	// Arbitrum: raise the gas cap to ignore L1 costs so that it's compute-only
+	// Mantle: raise the gas cap to ignore L1 costs so that it's compute-only
 	vanillaGasCap := gasCap
 	{
 		state, header, err := b.StateAndHeaderByNumberOrHash(ctx, blockNrOrHash)
@@ -1303,17 +1303,17 @@ func RPCMarshalBlock(block *types.Block, inclTx bool, fullTx bool, config *param
 	}
 	fields["uncles"] = uncleHashes
 
-	if config.IsArbitrumNitro(block.Header().Number) {
-		fillArbitrumNitroHeaderInfo(block.Header(), fields)
+	if config.IsMantleNitro(block.Header().Number) {
+		fillMantleNitroHeaderInfo(block.Header(), fields)
 	}
 
 	return fields, nil
 }
 
-func fillArbitrumNitroHeaderInfo(header *types.Header, fields map[string]interface{}) {
+func fillMantleNitroHeaderInfo(header *types.Header, fields map[string]interface{}) {
 	info, err := types.DeserializeHeaderExtraInformation(header)
 	if err != nil {
-		log.Error("Expected header to contain arbitrum data", "blockHash", header.Hash())
+		log.Error("Expected header to contain mantle data", "blockHash", header.Hash())
 	} else {
 		fields["l1BlockNumber"] = hexutil.Uint64(info.L1BlockNumber)
 		fields["sendRoot"] = info.SendRoot
@@ -1326,8 +1326,8 @@ func fillArbitrumNitroHeaderInfo(header *types.Header, fields map[string]interfa
 func (s *BlockChainAPI) rpcMarshalHeader(ctx context.Context, header *types.Header) map[string]interface{} {
 	fields := RPCMarshalHeader(header)
 	fields["totalDifficulty"] = (*hexutil.Big)(s.b.GetTd(ctx, header.Hash()))
-	if s.b.ChainConfig().IsArbitrumNitro(header.Number) {
-		fillArbitrumNitroHeaderInfo(header, fields)
+	if s.b.ChainConfig().IsMantleNitro(header.Number) {
+		fillMantleNitroHeaderInfo(header, fields)
 	}
 	return fields
 }
@@ -1339,7 +1339,7 @@ func (s *BlockChainAPI) arbClassicL1BlockNumber(ctx context.Context, block *type
 	for {
 		transactions := block.Transactions()
 		if len(transactions) > 0 {
-			legacyTx, ok := transactions[0].GetInner().(*types.ArbitrumLegacyTxData)
+			legacyTx, ok := transactions[0].GetInner().(*types.MantleLegacyTxData)
 			if !ok {
 				return 0, fmt.Errorf("couldn't read legacy transaction from block %d", blockNum)
 			}
@@ -1372,7 +1372,7 @@ func (s *BlockChainAPI) rpcMarshalBlock(ctx context.Context, b *types.Block, inc
 	if inclTx {
 		fields["totalDifficulty"] = (*hexutil.Big)(s.b.GetTd(ctx, b.Hash()))
 	}
-	if chainConfig.IsArbitrum() && !chainConfig.IsArbitrumNitro(b.Number()) {
+	if chainConfig.IsMantle() && !chainConfig.IsMantleNitro(b.Number()) {
 		l1BlockNumber, err := s.arbClassicL1BlockNumber(ctx, b)
 		if err != nil {
 			log.Error("error trying to fill legacy l1BlockNumber", "err", err)
@@ -1405,7 +1405,7 @@ type RPCTransaction struct {
 	R                *hexutil.Big      `json:"r"`
 	S                *hexutil.Big      `json:"s"`
 
-	// Arbitrum fields:
+	// Mantle fields:
 	RequestId           *common.Hash    `json:"requestId,omitempty"`           // Contract SubmitRetryable Deposit
 	TicketId            *common.Hash    `json:"ticketId,omitempty"`            // Retry
 	MaxRefund           *hexutil.Big    `json:"maxRefund,omitempty"`           // Retry
@@ -1471,25 +1471,25 @@ func newRPCTransaction(tx *types.Transaction, blockHash common.Hash, blockNumber
 		}
 	}
 
-	// Arbitrum: support arbitrum-specific transaction types
+	// Mantle: support mantle-specific transaction types
 	switch inner := tx.GetInner().(type) {
-	case *types.ArbitrumInternalTx:
+	case *types.MantleInternalTx:
 		result.ChainID = (*hexutil.Big)(inner.ChainId)
-	case *types.ArbitrumDepositTx:
+	case *types.MantleDepositTx:
 		result.RequestId = &inner.L1RequestId
 		result.ChainID = (*hexutil.Big)(inner.ChainId)
-	case *types.ArbitrumContractTx:
+	case *types.MantleContractTx:
 		result.RequestId = &inner.RequestId
 		result.GasFeeCap = (*hexutil.Big)(inner.GasFeeCap)
 		result.ChainID = (*hexutil.Big)(inner.ChainId)
-	case *types.ArbitrumRetryTx:
+	case *types.MantleRetryTx:
 		result.TicketId = &inner.TicketId
 		result.RefundTo = &inner.RefundTo
 		result.GasFeeCap = (*hexutil.Big)(inner.GasFeeCap)
 		result.ChainID = (*hexutil.Big)(inner.ChainId)
 		result.MaxRefund = (*hexutil.Big)(inner.MaxRefund)
 		result.SubmissionFeeRefund = (*hexutil.Big)(inner.SubmissionFeeRefund)
-	case *types.ArbitrumSubmitRetryableTx:
+	case *types.MantleSubmitRetryableTx:
 		result.RequestId = &inner.RequestId
 		result.L1BaseFee = (*hexutil.Big)(inner.L1BaseFee)
 		result.DepositValue = (*hexutil.Big)(inner.DepositValue)
@@ -1822,7 +1822,7 @@ func (s *TransactionAPI) GetTransactionReceipt(ctx context.Context, hash common.
 		fields["effectiveGasPrice"] = hexutil.Uint64(gasPrice.Uint64())
 	}
 	// Assign receipt status or post state.
-	if len(receipt.PostState) > 0 && tx.Type() != types.ArbitrumLegacyTxType {
+	if len(receipt.PostState) > 0 && tx.Type() != types.MantleLegacyTxType {
 		fields["root"] = hexutil.Bytes(receipt.PostState)
 	} else {
 		fields["status"] = hexutil.Uint(receipt.Status)
@@ -1834,26 +1834,26 @@ func (s *TransactionAPI) GetTransactionReceipt(ctx context.Context, hash common.
 	if receipt.ContractAddress != (common.Address{}) {
 		fields["contractAddress"] = receipt.ContractAddress
 	}
-	if s.b.ChainConfig().IsArbitrum() {
+	if s.b.ChainConfig().IsMantle() {
 		fields["gasUsedForL1"] = hexutil.Uint64(receipt.GasUsedForL1)
 
 		header, err := s.b.HeaderByHash(ctx, blockHash)
 		if err != nil {
 			return nil, err
 		}
-		if s.b.ChainConfig().IsArbitrumNitro(header.Number) {
+		if s.b.ChainConfig().IsMantleNitro(header.Number) {
 			fields["effectiveGasPrice"] = hexutil.Uint64(header.BaseFee.Uint64())
 			info, err := types.DeserializeHeaderExtraInformation(header)
 			if err != nil {
-				log.Error("Expected header to contain arbitrum data", "blockHash", blockHash)
+				log.Error("Expected header to contain mantle data", "blockHash", blockHash)
 			} else {
 				fields["l1BlockNumber"] = hexutil.Uint64(info.L1BlockNumber)
 			}
 		} else {
 			inner := tx.GetInner()
-			arbTx, ok := inner.(*types.ArbitrumLegacyTxData)
+			arbTx, ok := inner.(*types.MantleLegacyTxData)
 			if !ok {
-				log.Error("Expected transaction to contain arbitrum data", "txHash", tx.Hash())
+				log.Error("Expected transaction to contain mantle data", "txHash", tx.Hash())
 			} else {
 				fields["effectiveGasPrice"] = hexutil.Uint64(arbTx.EffectiveGasPrice)
 				fields["l1BlockNumber"] = hexutil.Uint64(arbTx.L1BlockNumber)

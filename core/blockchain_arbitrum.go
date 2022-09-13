@@ -56,7 +56,7 @@ func (bc *BlockChain) ReorgToOldBlock(newHead *types.Block) error {
 
 func (bc *BlockChain) ClipToPostNitroGenesis(blockNum rpc.BlockNumber) (rpc.BlockNumber, rpc.BlockNumber) {
 	currentBlock := rpc.BlockNumber(bc.CurrentBlock().NumberU64())
-	nitroGenesis := rpc.BlockNumber(bc.Config().ArbitrumChainParams.GenesisBlockNum)
+	nitroGenesis := rpc.BlockNumber(bc.Config().MantleChainParams.GenesisBlockNum)
 	if blockNum == rpc.LatestBlockNumber || blockNum == rpc.PendingBlockNumber {
 		blockNum = currentBlock
 	}

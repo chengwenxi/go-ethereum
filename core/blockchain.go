@@ -132,7 +132,7 @@ type CacheConfig struct {
 	SnapshotLimit       int           // Memory allowance (MB) to use for caching snapshot entries in memory
 	Preimages           bool          // Whether to store preimage of trie key to the disk
 
-	// Arbitrum: configure GC window
+	// Mantle: configure GC window
 	TriesInMemory uint64        // Height difference before which a trie may not be garbage-collected
 	TrieRetention time.Duration // Time limit before which a trie may not be garbage-collected
 
@@ -143,7 +143,7 @@ type CacheConfig struct {
 // user (also used during testing).
 var defaultCacheConfig = &CacheConfig{
 
-	// Arbitrum Config Options
+	// Mantle Config Options
 	TriesInMemory: 128,
 	TrieRetention: 30 * time.Minute,
 

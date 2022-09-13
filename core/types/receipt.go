@@ -36,7 +36,7 @@ import (
 var (
 	receiptStatusFailedRLP     = []byte{}
 	receiptStatusSuccessfulRLP = []byte{0x01}
-	receiptRootArbitrumLegacy  = []byte{0x00}
+	receiptRootMantleLegacy    = []byte{0x00}
 )
 
 var errShortTypedReceipt = errors.New("typed receipt too short")
@@ -51,7 +51,7 @@ const (
 
 // Receipt represents the results of a transaction.
 type Receipt struct {
-	// Arbitrum Implementation fields
+	// Mantle Implementation fields
 	GasUsedForL1 uint64 `json:"gasUsedForL1"`
 
 	// Consensus fields: These fields are defined by the Yellow Paper
@@ -76,7 +76,7 @@ type Receipt struct {
 }
 
 type receiptMarshaling struct {
-	// Arbitrum specific fields
+	// Mantle specific fields
 	GasUsedForL1 hexutil.Uint64
 
 	Type              hexutil.Uint64
@@ -294,8 +294,8 @@ type ReceiptForStorage Receipt
 func (r *ReceiptForStorage) EncodeRLP(_w io.Writer) error {
 	w := rlp.NewEncoderBuffer(_w)
 	outerList := w.List()
-	if r.Type == ArbitrumLegacyTxType {
-		w.WriteBytes(receiptRootArbitrumLegacy)
+	if r.Type == MantleLegacyTxType {
+		w.WriteBytes(receiptRootMantleLegacy)
 		w.WriteUint64(r.CumulativeGasUsed)
 		w.WriteUint64(r.GasUsed)
 		w.WriteUint64(r.GasUsedForL1)
@@ -331,7 +331,7 @@ func (r *ReceiptForStorage) DecodeRLP(s *rlp.Stream) error {
 	if err := decodeStoredReceiptRLP(r, blob); err == nil {
 		return nil
 	}
-	if err := decodeArbitrumLegacyStoredReceiptRLP(r, blob); err == nil {
+	if err := decodeMantleLegacyStoredReceiptRLP(r, blob); err == nil {
 		return nil
 	}
 	if err := decodeV3StoredReceiptRLP(r, blob); err == nil {
@@ -340,16 +340,16 @@ func (r *ReceiptForStorage) DecodeRLP(s *rlp.Stream) error {
 	return decodeV4StoredReceiptRLP(r, blob)
 }
 
-func decodeArbitrumLegacyStoredReceiptRLP(r *ReceiptForStorage, blob []byte) error {
+func decodeMantleLegacyStoredReceiptRLP(r *ReceiptForStorage, blob []byte) error {
 	var stored arbLegacyStoredReceiptRLP
 	if err := rlp.DecodeBytes(blob, &stored); err != nil {
 		return err
 	}
-	if !bytes.Equal(stored.PostStateOrStatus, receiptRootArbitrumLegacy) {
-		return errors.New("not arbitrum legacy Tx")
+	if !bytes.Equal(stored.PostStateOrStatus, receiptRootMantleLegacy) {
+		return errors.New("not mantle legacy Tx")
 	}
-	r.Type = ArbitrumLegacyTxType
-	(*Receipt)(r).PostState = receiptRootArbitrumLegacy
+	r.Type = MantleLegacyTxType
+	(*Receipt)(r).PostState = receiptRootMantleLegacy
 	r.Status = stored.Status
 	r.CumulativeGasUsed = stored.CumulativeGasUsed
 	r.GasUsed = stored.GasUsed
@@ -435,7 +435,7 @@ func (rs Receipts) EncodeIndex(i int, w *bytes.Buffer) {
 	r := rs[i]
 	data := &receiptRLP{r.statusEncoding(), r.CumulativeGasUsed, r.Bloom, r.Logs}
 	switch r.Type {
-	case LegacyTxType, ArbitrumLegacyTxType:
+	case LegacyTxType, MantleLegacyTxType:
 		rlp.Encode(w, data)
 	default:
 		w.WriteByte(r.Type)
@@ -462,7 +462,7 @@ func (rs Receipts) DeriveFields(config *params.ChainConfig, hash common.Hash, nu
 		rs[i].BlockNumber = new(big.Int).SetUint64(number)
 		rs[i].TransactionIndex = uint(i)
 
-		if rs[i].Type != ArbitrumLegacyTxType {
+		if rs[i].Type != MantleLegacyTxType {
 			// The contract address can be derived from the transaction itself
 			if txs[i].To() == nil {
 				// Deriving the signer is expensive, only do if it's actually needed

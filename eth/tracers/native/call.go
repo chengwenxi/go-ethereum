@@ -35,9 +35,9 @@ func init() {
 }
 
 type callFrame struct {
-	// Arbitrum: we add these here due to the tracer returning the top frame
-	BeforeEVMTransfers *[]arbitrumTransfer `json:"beforeEVMTransfers,omitempty"`
-	AfterEVMTransfers  *[]arbitrumTransfer `json:"afterEVMTransfers,omitempty"`
+	// Mantle: we add these here due to the tracer returning the top frame
+	BeforeEVMTransfers *[]mantleTransfer `json:"beforeEVMTransfers,omitempty"`
+	AfterEVMTransfers  *[]mantleTransfer `json:"afterEVMTransfers,omitempty"`
 
 	Type    string      `json:"type"`
 	From    string      `json:"from"`
@@ -52,9 +52,9 @@ type callFrame struct {
 }
 
 type callTracer struct {
-	// Arbitrum: capture transfers occuring outside of evm execution
-	beforeEVMTransfers []arbitrumTransfer
-	afterEVMTransfers  []arbitrumTransfer
+	// Mantle: capture transfers occuring outside of evm execution
+	beforeEVMTransfers []mantleTransfer
+	afterEVMTransfers  []mantleTransfer
 
 	env       *vm.EVM
 	callstack []callFrame
@@ -69,8 +69,8 @@ func newCallTracer(ctx *tracers.Context) tracers.Tracer {
 	// and is populated on start and end.
 	return &callTracer{
 		callstack:          make([]callFrame, 1),
-		beforeEVMTransfers: []arbitrumTransfer{},
-		afterEVMTransfers:  []arbitrumTransfer{},
+		beforeEVMTransfers: []mantleTransfer{},
+		afterEVMTransfers:  []mantleTransfer{},
 	}
 }
 
@@ -165,7 +165,7 @@ func (t *callTracer) GetResult() (json.RawMessage, error) {
 		return nil, errors.New("incorrect number of top-level calls")
 	}
 
-	// Arbitrum: populate the top-level call with additional info
+	// Mantle: populate the top-level call with additional info
 	call := t.callstack[0]
 	call.BeforeEVMTransfers = &t.beforeEVMTransfers
 	call.AfterEVMTransfers = &t.afterEVMTransfers

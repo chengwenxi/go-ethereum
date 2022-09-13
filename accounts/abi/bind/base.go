@@ -56,7 +56,7 @@ type TransactOpts struct {
 	GasFeeCap *big.Int // Gas fee cap to use for the 1559 transaction execution (nil = gas price oracle)
 	GasTipCap *big.Int // Gas priority fee cap to use for the 1559 transaction execution (nil = gas price oracle)
 	GasLimit  uint64   // Gas limit to set for the transaction execution (0 = estimate)
-	GasMargin uint64   // Arbitrum: adjusts gas estimate by this many basis points (0 = no adjustment)
+	GasMargin uint64   // Mantle: adjusts gas estimate by this many basis points (0 = no adjustment)
 
 	Context context.Context // Network context to support cancellation and timeouts (nil = no timeout)
 
@@ -352,7 +352,7 @@ func (c *BoundContract) estimateGasLimit(opts *TransactOpts, contract *common.Ad
 	if err != nil {
 		return 0, err
 	}
-	// Arbitrum: adjust the estimate
+	// Mantle: adjust the estimate
 	adjustedLimit := gasLimit * (10000 + opts.GasMargin) / 10000
 	if adjustedLimit > gasLimit {
 		gasLimit = adjustedLimit

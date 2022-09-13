@@ -264,16 +264,16 @@ var (
 	//
 	// This configuration is intentionally not using keyed fields to force anyone
 	// adding flags to the config to also have to set these fields.
-	AllEthashProtocolChanges = &ChainConfig{big.NewInt(1337), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), nil, nil, nil, nil, new(EthashConfig), nil, DisableArbitrumParams()}
+	AllEthashProtocolChanges = &ChainConfig{big.NewInt(1337), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), nil, nil, nil, nil, new(EthashConfig), nil, DisableMantleParams()}
 
 	// AllCliqueProtocolChanges contains every protocol change (EIPs) introduced
 	// and accepted by the Ethereum core developers into the Clique consensus.
 	//
 	// This configuration is intentionally not using keyed fields to force anyone
 	// adding flags to the config to also have to set these fields.
-	AllCliqueProtocolChanges = &ChainConfig{big.NewInt(1337), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), nil, nil, nil, nil, nil, nil, nil, &CliqueConfig{Period: 0, Epoch: 30000}, DisableArbitrumParams()}
+	AllCliqueProtocolChanges = &ChainConfig{big.NewInt(1337), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), nil, nil, nil, nil, nil, nil, nil, &CliqueConfig{Period: 0, Epoch: 30000}, DisableMantleParams()}
 
-	TestChainConfig = &ChainConfig{big.NewInt(1), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), nil, nil, nil, nil, new(EthashConfig), nil, DisableArbitrumParams()}
+	TestChainConfig = &ChainConfig{big.NewInt(1), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), nil, nil, nil, nil, new(EthashConfig), nil, DisableMantleParams()}
 	TestRules       = TestChainConfig.Rules(new(big.Int), false)
 )
 
@@ -375,7 +375,7 @@ type ChainConfig struct {
 	Ethash *EthashConfig `json:"ethash,omitempty"`
 	Clique *CliqueConfig `json:"clique,omitempty"`
 
-	ArbitrumChainParams ArbitrumChainParams `json:"arbitrum,omitempty"`
+	MantleChainParams MantleChainParams `json:"mantle,omitempty"`
 }
 
 // EthashConfig is the consensus engine configs for proof-of-work based sealing.
@@ -531,8 +531,8 @@ func (c *ChainConfig) IsBerlin(num *big.Int) bool {
 
 // IsLondon returns whether num is either equal to the London fork block or greater.
 func (c *ChainConfig) IsLondon(num *big.Int) bool {
-	if c.IsArbitrum() {
-		return isForked(new(big.Int).SetUint64(c.ArbitrumChainParams.GenesisBlockNum), num)
+	if c.IsMantle() {
+		return isForked(new(big.Int).SetUint64(c.MantleChainParams.GenesisBlockNum), num)
 	}
 	return isForked(c.LondonBlock, num)
 }
@@ -654,7 +654,7 @@ func (c *ChainConfig) checkCompatible(newcfg *ChainConfig, head *big.Int) *Confi
 	if c.IsEIP158(head) && !configNumEqual(c.ChainID, newcfg.ChainID) {
 		return newCompatError("EIP158 chain ID", c.EIP158Block, newcfg.EIP158Block)
 	}
-	if err := c.checkArbitrumCompatible(newcfg, head); err != nil {
+	if err := c.checkMantleCompatible(newcfg, head); err != nil {
 		return err
 	}
 	if isForkIncompatible(c.ByzantiumBlock, newcfg.ByzantiumBlock, head) {
@@ -761,7 +761,7 @@ func (err *ConfigCompatError) Error() string {
 // Rules is a one time interface meaning that it shouldn't be used in between transition
 // phases.
 type Rules struct {
-	IsArbitrum                                              bool
+	IsMantle                                                bool
 	ChainID                                                 *big.Int
 	IsHomestead, IsEIP150, IsEIP155, IsEIP158               bool
 	IsByzantium, IsConstantinople, IsPetersburg, IsIstanbul bool
@@ -776,7 +776,7 @@ func (c *ChainConfig) Rules(num *big.Int, isMerge bool) Rules {
 		chainID = new(big.Int)
 	}
 	return Rules{
-		IsArbitrum:       c.IsArbitrum(),
+		IsMantle:         c.IsMantle(),
 		ChainID:          new(big.Int).Set(chainID),
 		IsHomestead:      c.IsHomestead(num),
 		IsEIP150:         c.IsEIP150(num),

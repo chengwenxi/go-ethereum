@@ -77,7 +77,7 @@ func newTestBackend(t *testing.T, n int, gspec *core.Genesis, generator func(i i
 	gspec.MustCommit(backend.chaindb)
 	cacheConfig := &core.CacheConfig{
 
-		// Arbitrum
+		// Mantle
 		TriesInMemory: 128,
 		TrieRetention: 30 * time.Minute,
 

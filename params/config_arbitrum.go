@@ -22,124 +22,124 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-type ArbitrumChainParams struct {
-	EnableArbOS               bool
+type MantleChainParams struct {
+	EnableMtOS                bool
 	AllowDebugPrecompiles     bool
 	DataAvailabilityCommittee bool
-	InitialArbOSVersion       uint64
+	InitialMtOSVersion        uint64
 	InitialChainOwner         common.Address
 	GenesisBlockNum           uint64
 }
 
-func (c *ChainConfig) IsArbitrum() bool {
-	return c.ArbitrumChainParams.EnableArbOS
+func (c *ChainConfig) IsMantle() bool {
+	return c.MantleChainParams.EnableMtOS
 }
 
-func (c *ChainConfig) IsArbitrumNitro(num *big.Int) bool {
-	return c.IsArbitrum() && isForked(new(big.Int).SetUint64(c.ArbitrumChainParams.GenesisBlockNum), num)
+func (c *ChainConfig) IsMantleNitro(num *big.Int) bool {
+	return c.IsMantle() && isForked(new(big.Int).SetUint64(c.MantleChainParams.GenesisBlockNum), num)
 }
 
 func (c *ChainConfig) DebugMode() bool {
-	return c.ArbitrumChainParams.AllowDebugPrecompiles
+	return c.MantleChainParams.AllowDebugPrecompiles
 }
 
-func (c *ChainConfig) checkArbitrumCompatible(newcfg *ChainConfig, head *big.Int) *ConfigCompatError {
-	if c.IsArbitrum() != newcfg.IsArbitrum() {
+func (c *ChainConfig) checkMantleCompatible(newcfg *ChainConfig, head *big.Int) *ConfigCompatError {
+	if c.IsMantle() != newcfg.IsMantle() {
 		// This difference applies to the entire chain, so report that the genesis block is where the difference appears.
-		return newCompatError("isArbitrum", common.Big0, common.Big0)
+		return newCompatError("isMantle", common.Big0, common.Big0)
 	}
-	if !c.IsArbitrum() {
+	if !c.IsMantle() {
 		return nil
 	}
-	cArb := &c.ArbitrumChainParams
-	newArb := &newcfg.ArbitrumChainParams
+	cArb := &c.MantleChainParams
+	newArb := &newcfg.MantleChainParams
 	if cArb.GenesisBlockNum != newArb.GenesisBlockNum {
 		return newCompatError("genesisblocknum", new(big.Int).SetUint64(cArb.GenesisBlockNum), new(big.Int).SetUint64(newArb.GenesisBlockNum))
 	}
 	return nil
 }
 
-func ArbitrumOneParams() ArbitrumChainParams {
-	return ArbitrumChainParams{
-		EnableArbOS:               true,
+func MantleOneParams() MantleChainParams {
+	return MantleChainParams{
+		EnableMtOS:                true,
 		AllowDebugPrecompiles:     false,
 		DataAvailabilityCommittee: false,
-		InitialArbOSVersion:       6,
+		InitialMtOSVersion:        6,
 		InitialChainOwner:         common.HexToAddress("0xd345e41ae2cb00311956aa7109fc801ae8c81a52"),
 	}
 }
 
-func ArbitrumNovaParams() ArbitrumChainParams {
-	return ArbitrumChainParams{
-		EnableArbOS:               true,
+func MantleNovaParams() MantleChainParams {
+	return MantleChainParams{
+		EnableMtOS:                true,
 		AllowDebugPrecompiles:     false,
 		DataAvailabilityCommittee: true,
-		InitialArbOSVersion:       1,
+		InitialMtOSVersion:        1,
 		InitialChainOwner:         common.HexToAddress("0x9C040726F2A657226Ed95712245DeE84b650A1b5"),
 	}
 }
 
-func ArbitrumRollupGoerliTestnetParams() ArbitrumChainParams {
-	return ArbitrumChainParams{
-		EnableArbOS:               true,
+func MantleRollupGoerliTestnetParams() MantleChainParams {
+	return MantleChainParams{
+		EnableMtOS:                true,
 		AllowDebugPrecompiles:     false,
 		DataAvailabilityCommittee: false,
-		InitialArbOSVersion:       2,
+		InitialMtOSVersion:        2,
 		InitialChainOwner:         common.HexToAddress("0x186B56023d42B2B4E7616589a5C62EEf5FCa21DD"),
 	}
 }
 
-func ArbitrumRinkebyTestParams() ArbitrumChainParams {
-	return ArbitrumChainParams{
-		EnableArbOS:               true,
+func MantleRinkebyTestParams() MantleChainParams {
+	return MantleChainParams{
+		EnableMtOS:                true,
 		AllowDebugPrecompiles:     false,
 		DataAvailabilityCommittee: false,
-		InitialArbOSVersion:       3,
+		InitialMtOSVersion:        3,
 		InitialChainOwner:         common.HexToAddress("0x06C7DBC804D7BcD881D7b86b667893736b8e0Be2"),
 	}
 }
 
-func ArbitrumDevTestParams() ArbitrumChainParams {
-	return ArbitrumChainParams{
-		EnableArbOS:               true,
+func MantleDevTestParams() MantleChainParams {
+	return MantleChainParams{
+		EnableMtOS:                true,
 		AllowDebugPrecompiles:     true,
 		DataAvailabilityCommittee: false,
-		InitialArbOSVersion:       6,
+		InitialMtOSVersion:        6,
 		InitialChainOwner:         common.Address{},
 	}
 }
 
-func ArbitrumDevTestDASParams() ArbitrumChainParams {
-	return ArbitrumChainParams{
-		EnableArbOS:               true,
+func MantleDevTestDASParams() MantleChainParams {
+	return MantleChainParams{
+		EnableMtOS:                true,
 		AllowDebugPrecompiles:     true,
 		DataAvailabilityCommittee: true,
-		InitialArbOSVersion:       6,
+		InitialMtOSVersion:        6,
 		InitialChainOwner:         common.Address{},
 	}
 }
 
-func ArbitrumAnytrustGoerliTestnetParams() ArbitrumChainParams {
-	return ArbitrumChainParams{
-		EnableArbOS:               true,
+func MantleAnytrustGoerliTestnetParams() MantleChainParams {
+	return MantleChainParams{
+		EnableMtOS:                true,
 		AllowDebugPrecompiles:     false,
 		DataAvailabilityCommittee: true,
-		InitialArbOSVersion:       2,
+		InitialMtOSVersion:        2,
 		InitialChainOwner:         common.HexToAddress("0x186B56023d42B2B4E7616589a5C62EEf5FCa21DD"),
 	}
 }
 
-func DisableArbitrumParams() ArbitrumChainParams {
-	return ArbitrumChainParams{
-		EnableArbOS:               false,
+func DisableMantleParams() MantleChainParams {
+	return MantleChainParams{
+		EnableMtOS:                false,
 		AllowDebugPrecompiles:     false,
 		DataAvailabilityCommittee: false,
-		InitialArbOSVersion:       0,
+		InitialMtOSVersion:        0,
 		InitialChainOwner:         common.Address{},
 	}
 }
 
-func ArbitrumOneChainConfig() *ChainConfig {
+func MantleOneChainConfig() *ChainConfig {
 	return &ChainConfig{
 		ChainID:             big.NewInt(42161),
 		HomesteadBlock:      big.NewInt(0),
@@ -156,7 +156,7 @@ func ArbitrumOneChainConfig() *ChainConfig {
 		MuirGlacierBlock:    big.NewInt(0),
 		BerlinBlock:         big.NewInt(0),
 		LondonBlock:         big.NewInt(0),
-		ArbitrumChainParams: ArbitrumOneParams(),
+		MantleChainParams:   MantleOneParams(),
 		Clique: &CliqueConfig{
 			Period: 0,
 			Epoch:  0,
@@ -164,7 +164,7 @@ func ArbitrumOneChainConfig() *ChainConfig {
 	}
 }
 
-func ArbitrumNovaChainConfig() *ChainConfig {
+func MantleNovaChainConfig() *ChainConfig {
 	return &ChainConfig{
 		ChainID:             big.NewInt(42170),
 		HomesteadBlock:      big.NewInt(0),
@@ -181,7 +181,7 @@ func ArbitrumNovaChainConfig() *ChainConfig {
 		MuirGlacierBlock:    big.NewInt(0),
 		BerlinBlock:         big.NewInt(0),
 		LondonBlock:         big.NewInt(0),
-		ArbitrumChainParams: ArbitrumNovaParams(),
+		MantleChainParams:   MantleNovaParams(),
 		Clique: &CliqueConfig{
 			Period: 0,
 			Epoch:  0,
@@ -189,7 +189,7 @@ func ArbitrumNovaChainConfig() *ChainConfig {
 	}
 }
 
-func ArbitrumRollupGoerliTestnetChainConfig() *ChainConfig {
+func MantleRollupGoerliTestnetChainConfig() *ChainConfig {
 	return &ChainConfig{
 		ChainID:             big.NewInt(421613),
 		HomesteadBlock:      big.NewInt(0),
@@ -206,7 +206,7 @@ func ArbitrumRollupGoerliTestnetChainConfig() *ChainConfig {
 		MuirGlacierBlock:    big.NewInt(0),
 		BerlinBlock:         big.NewInt(0),
 		LondonBlock:         big.NewInt(0),
-		ArbitrumChainParams: ArbitrumRollupGoerliTestnetParams(),
+		MantleChainParams:   MantleRollupGoerliTestnetParams(),
 		Clique: &CliqueConfig{
 			Period: 0,
 			Epoch:  0,
@@ -214,7 +214,7 @@ func ArbitrumRollupGoerliTestnetChainConfig() *ChainConfig {
 	}
 }
 
-func ArbitrumDevTestChainConfig() *ChainConfig {
+func MantleDevTestChainConfig() *ChainConfig {
 	return &ChainConfig{
 		ChainID:             big.NewInt(412346),
 		HomesteadBlock:      big.NewInt(0),
@@ -231,7 +231,7 @@ func ArbitrumDevTestChainConfig() *ChainConfig {
 		MuirGlacierBlock:    big.NewInt(0),
 		BerlinBlock:         big.NewInt(0),
 		LondonBlock:         big.NewInt(0),
-		ArbitrumChainParams: ArbitrumDevTestParams(),
+		MantleChainParams:   MantleDevTestParams(),
 		Clique: &CliqueConfig{
 			Period: 0,
 			Epoch:  0,
@@ -239,7 +239,7 @@ func ArbitrumDevTestChainConfig() *ChainConfig {
 	}
 }
 
-func ArbitrumDevTestDASChainConfig() *ChainConfig {
+func MantleDevTestDASChainConfig() *ChainConfig {
 	return &ChainConfig{
 		ChainID:             big.NewInt(412347),
 		HomesteadBlock:      big.NewInt(0),
@@ -256,7 +256,7 @@ func ArbitrumDevTestDASChainConfig() *ChainConfig {
 		MuirGlacierBlock:    big.NewInt(0),
 		BerlinBlock:         big.NewInt(0),
 		LondonBlock:         big.NewInt(0),
-		ArbitrumChainParams: ArbitrumDevTestDASParams(),
+		MantleChainParams:   MantleDevTestDASParams(),
 		Clique: &CliqueConfig{
 			Period: 0,
 			Epoch:  0,
@@ -264,7 +264,7 @@ func ArbitrumDevTestDASChainConfig() *ChainConfig {
 	}
 }
 
-func ArbitrumAnytrustGoerliTestnetChainConfig() *ChainConfig {
+func MantleAnytrustGoerliTestnetChainConfig() *ChainConfig {
 	return &ChainConfig{
 		ChainID:             big.NewInt(421703),
 		HomesteadBlock:      big.NewInt(0),
@@ -281,7 +281,7 @@ func ArbitrumAnytrustGoerliTestnetChainConfig() *ChainConfig {
 		MuirGlacierBlock:    big.NewInt(0),
 		BerlinBlock:         big.NewInt(0),
 		LondonBlock:         big.NewInt(0),
-		ArbitrumChainParams: ArbitrumAnytrustGoerliTestnetParams(),
+		MantleChainParams:   MantleAnytrustGoerliTestnetParams(),
 		Clique: &CliqueConfig{
 			Period: 0,
 			Epoch:  0,
@@ -289,7 +289,7 @@ func ArbitrumAnytrustGoerliTestnetChainConfig() *ChainConfig {
 	}
 }
 
-func ArbitrumRinkebyTestnetChainConfig() *ChainConfig {
+func MantleRinkebyTestnetChainConfig() *ChainConfig {
 	return &ChainConfig{
 		ChainID:             big.NewInt(421611),
 		HomesteadBlock:      big.NewInt(0),
@@ -306,7 +306,7 @@ func ArbitrumRinkebyTestnetChainConfig() *ChainConfig {
 		MuirGlacierBlock:    big.NewInt(0),
 		BerlinBlock:         big.NewInt(0),
 		LondonBlock:         big.NewInt(0),
-		ArbitrumChainParams: ArbitrumRinkebyTestParams(),
+		MantleChainParams:   MantleRinkebyTestParams(),
 		Clique: &CliqueConfig{
 			Period: 0,
 			Epoch:  0,
@@ -314,12 +314,12 @@ func ArbitrumRinkebyTestnetChainConfig() *ChainConfig {
 	}
 }
 
-var ArbitrumSupportedChainConfigs = []*ChainConfig{
-	ArbitrumOneChainConfig(),
-	ArbitrumNovaChainConfig(),
-	ArbitrumRollupGoerliTestnetChainConfig(),
-	ArbitrumDevTestChainConfig(),
-	ArbitrumDevTestDASChainConfig(),
-	ArbitrumAnytrustGoerliTestnetChainConfig(),
-	ArbitrumRinkebyTestnetChainConfig(),
+var MantleSupportedChainConfigs = []*ChainConfig{
+	MantleOneChainConfig(),
+	MantleNovaChainConfig(),
+	MantleRollupGoerliTestnetChainConfig(),
+	MantleDevTestChainConfig(),
+	MantleDevTestDASChainConfig(),
+	MantleAnytrustGoerliTestnetChainConfig(),
+	MantleRinkebyTestnetChainConfig(),
 }

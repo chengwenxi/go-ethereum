@@ -443,7 +443,7 @@ func (t *jsTracer) setBuiltinFunctions() {
 		}
 		return false
 	})
-	vm.Set("isPrecompiledArbOS", func(v goja.Value) bool {
+	vm.Set("isPrecompiledMtOS", func(v goja.Value) bool {
 		a, err := t.fromBuf(vm, v, true)
 		if err != nil {
 			vm.Interrupt(err)

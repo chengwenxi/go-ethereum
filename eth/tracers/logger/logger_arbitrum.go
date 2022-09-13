@@ -23,21 +23,21 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 )
 
-func (*AccessListTracer) CaptureArbitrumTransfer(env *vm.EVM, from, to *common.Address, value *big.Int, before bool, purpose string) {
+func (*AccessListTracer) CaptureMantleTransfer(env *vm.EVM, from, to *common.Address, value *big.Int, before bool, purpose string) {
 }
-func (*JSONLogger) CaptureArbitrumTransfer(env *vm.EVM, from, to *common.Address, value *big.Int, before bool, purpose string) {
+func (*JSONLogger) CaptureMantleTransfer(env *vm.EVM, from, to *common.Address, value *big.Int, before bool, purpose string) {
 }
-func (*StructLogger) CaptureArbitrumTransfer(env *vm.EVM, from, to *common.Address, value *big.Int, before bool, purpose string) {
+func (*StructLogger) CaptureMantleTransfer(env *vm.EVM, from, to *common.Address, value *big.Int, before bool, purpose string) {
 }
-func (*mdLogger) CaptureArbitrumTransfer(env *vm.EVM, from, to *common.Address, amount *big.Int, before bool, purpose string) {
+func (*mdLogger) CaptureMantleTransfer(env *vm.EVM, from, to *common.Address, amount *big.Int, before bool, purpose string) {
 }
 
-func (*AccessListTracer) CaptureArbitrumStorageGet(key common.Hash, depth int, before bool) {}
-func (*JSONLogger) CaptureArbitrumStorageGet(key common.Hash, depth int, before bool)       {}
-func (*StructLogger) CaptureArbitrumStorageGet(key common.Hash, depth int, before bool)     {}
-func (*mdLogger) CaptureArbitrumStorageGet(key common.Hash, depth int, before bool)         {}
+func (*AccessListTracer) CaptureMantleStorageGet(key common.Hash, depth int, before bool) {}
+func (*JSONLogger) CaptureMantleStorageGet(key common.Hash, depth int, before bool)       {}
+func (*StructLogger) CaptureMantleStorageGet(key common.Hash, depth int, before bool)     {}
+func (*mdLogger) CaptureMantleStorageGet(key common.Hash, depth int, before bool)         {}
 
-func (*AccessListTracer) CaptureArbitrumStorageSet(key, value common.Hash, depth int, before bool) {}
-func (*JSONLogger) CaptureArbitrumStorageSet(key, value common.Hash, depth int, before bool)       {}
-func (*StructLogger) CaptureArbitrumStorageSet(key, value common.Hash, depth int, before bool)     {}
-func (*mdLogger) CaptureArbitrumStorageSet(key, value common.Hash, depth int, before bool)         {}
+func (*AccessListTracer) CaptureMantleStorageSet(key, value common.Hash, depth int, before bool) {}
+func (*JSONLogger) CaptureMantleStorageSet(key, value common.Hash, depth int, before bool)       {}
+func (*StructLogger) CaptureMantleStorageSet(key, value common.Hash, depth int, before bool)     {}
+func (*mdLogger) CaptureMantleStorageSet(key, value common.Hash, depth int, before bool)         {}
