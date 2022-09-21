@@ -54,17 +54,17 @@ func (bc *BlockChain) ReorgToOldBlock(newHead *types.Block) error {
 	return nil
 }
 
-func (bc *BlockChain) ClipToPostNitroGenesis(blockNum rpc.BlockNumber) (rpc.BlockNumber, rpc.BlockNumber) {
+func (bc *BlockChain) ClipToPostMantleGenesis(blockNum rpc.BlockNumber) (rpc.BlockNumber, rpc.BlockNumber) {
 	currentBlock := rpc.BlockNumber(bc.CurrentBlock().NumberU64())
-	nitroGenesis := rpc.BlockNumber(bc.Config().MantleChainParams.GenesisBlockNum)
+	mantleGenesis := rpc.BlockNumber(bc.Config().MantleChainParams.GenesisBlockNum)
 	if blockNum == rpc.LatestBlockNumber || blockNum == rpc.PendingBlockNumber {
 		blockNum = currentBlock
 	}
 	if blockNum > currentBlock {
 		blockNum = currentBlock
 	}
-	if blockNum < nitroGenesis {
-		blockNum = nitroGenesis
+	if blockNum < mantleGenesis {
+		blockNum = mantleGenesis
 	}
 	return blockNum, currentBlock
 }

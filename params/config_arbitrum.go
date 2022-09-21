@@ -35,7 +35,7 @@ func (c *ChainConfig) IsMantle() bool {
 	return c.MantleChainParams.EnableMtOS
 }
 
-func (c *ChainConfig) IsMantleNitro(num *big.Int) bool {
+func (c *ChainConfig) IsMantleMantle(num *big.Int) bool {
 	return c.IsMantle() && isForked(new(big.Int).SetUint64(c.MantleChainParams.GenesisBlockNum), num)
 }
 

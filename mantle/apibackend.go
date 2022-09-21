@@ -166,8 +166,8 @@ func (a *APIBackend) FeeHistory(
 		return nil, nil, nil, nil, errors.New("ArbOS not installed")
 	}
 
-	nitroGenesis := rpc.BlockNumber(a.ChainConfig().MantleChainParams.GenesisBlockNum)
-	newestBlock, latestBlock := a.blockChain().ClipToPostNitroGenesis(newestBlock)
+	mantleGenesis := rpc.BlockNumber(a.ChainConfig().MantleChainParams.GenesisBlockNum)
+	newestBlock, latestBlock := a.blockChain().ClipToPostMantleGenesis(newestBlock)
 
 	maxFeeHistory := int(a.b.config.FeeHistoryMaxBlockCount)
 	if blocks > maxFeeHistory {
@@ -180,8 +180,8 @@ func (a *APIBackend) FeeHistory(
 	}
 
 	// don't attempt to include blocks before genesis
-	if rpc.BlockNumber(blocks) > (newestBlock - nitroGenesis) {
-		blocks = int(newestBlock - nitroGenesis + 1)
+	if rpc.BlockNumber(blocks) > (newestBlock - mantleGenesis) {
+		blocks = int(newestBlock - mantleGenesis + 1)
 	}
 	oldestBlock := int(newestBlock) + 1 - blocks
 
@@ -220,7 +220,7 @@ func (a *APIBackend) FeeHistory(
 	var prevTimestamp uint64
 	var timeSinceLastTimeChange uint64
 	var currentTimestampGasUsed uint64
-	if rpc.BlockNumber(oldestBlock) > nitroGenesis {
+	if rpc.BlockNumber(oldestBlock) > mantleGenesis {
 		header, err := a.HeaderByNumber(ctx, rpc.BlockNumber(oldestBlock-1))
 		if err != nil {
 			return common.Big0, nil, nil, nil, err
@@ -377,7 +377,7 @@ func (a *APIBackend) stateAndHeaderFromHeader(header *types.Header, err error) (
 	if header == nil {
 		return nil, nil, errors.New("header not found")
 	}
-	if !a.blockChain().Config().IsMantleNitro(header.Number) {
+	if !a.blockChain().Config().IsMantleMantle(header.Number) {
 		return nil, header, types.ErrUseFallback
 	}
 	state, err := a.blockChain().StateAt(header.Root)
@@ -393,7 +393,7 @@ func (a *APIBackend) StateAndHeaderByNumberOrHash(ctx context.Context, blockNrOr
 }
 
 func (a *APIBackend) StateAtBlock(ctx context.Context, block *types.Block, reexec uint64, base *state.StateDB, checkLive bool, preferDisk bool) (statedb *state.StateDB, err error) {
-	if !a.blockChain().Config().IsMantleNitro(block.Number()) {
+	if !a.blockChain().Config().IsMantleMantle(block.Number()) {
 		return nil, types.ErrUseFallback
 	}
 	// DEV: This assumes that `StateAtBlock` only accesses the blockchain and chainDb fields
@@ -401,7 +401,7 @@ func (a *APIBackend) StateAtBlock(ctx context.Context, block *types.Block, reexe
 }
 
 func (a *APIBackend) StateAtTransaction(ctx context.Context, block *types.Block, txIndex int, reexec uint64) (core.Message, vm.BlockContext, *state.StateDB, error) {
-	if !a.blockChain().Config().IsMantleNitro(block.Number()) {
+	if !a.blockChain().Config().IsMantleMantle(block.Number()) {
 		return nil, vm.BlockContext{}, nil, types.ErrUseFallback
 	}
 	// DEV: This assumes that `StateAtTransaction` only accesses the blockchain and chainDb fields

@@ -1303,14 +1303,14 @@ func RPCMarshalBlock(block *types.Block, inclTx bool, fullTx bool, config *param
 	}
 	fields["uncles"] = uncleHashes
 
-	if config.IsMantleNitro(block.Header().Number) {
-		fillMantleNitroHeaderInfo(block.Header(), fields)
+	if config.IsMantleMantle(block.Header().Number) {
+		fillMantleMantleHeaderInfo(block.Header(), fields)
 	}
 
 	return fields, nil
 }
 
-func fillMantleNitroHeaderInfo(header *types.Header, fields map[string]interface{}) {
+func fillMantleMantleHeaderInfo(header *types.Header, fields map[string]interface{}) {
 	info, err := types.DeserializeHeaderExtraInformation(header)
 	if err != nil {
 		log.Error("Expected header to contain mantle data", "blockHash", header.Hash())
@@ -1326,8 +1326,8 @@ func fillMantleNitroHeaderInfo(header *types.Header, fields map[string]interface
 func (s *BlockChainAPI) rpcMarshalHeader(ctx context.Context, header *types.Header) map[string]interface{} {
 	fields := RPCMarshalHeader(header)
 	fields["totalDifficulty"] = (*hexutil.Big)(s.b.GetTd(ctx, header.Hash()))
-	if s.b.ChainConfig().IsMantleNitro(header.Number) {
-		fillMantleNitroHeaderInfo(header, fields)
+	if s.b.ChainConfig().IsMantleMantle(header.Number) {
+		fillMantleMantleHeaderInfo(header, fields)
 	}
 	return fields
 }
@@ -1372,7 +1372,7 @@ func (s *BlockChainAPI) rpcMarshalBlock(ctx context.Context, b *types.Block, inc
 	if inclTx {
 		fields["totalDifficulty"] = (*hexutil.Big)(s.b.GetTd(ctx, b.Hash()))
 	}
-	if chainConfig.IsMantle() && !chainConfig.IsMantleNitro(b.Number()) {
+	if chainConfig.IsMantle() && !chainConfig.IsMantleMantle(b.Number()) {
 		l1BlockNumber, err := s.arbClassicL1BlockNumber(ctx, b)
 		if err != nil {
 			log.Error("error trying to fill legacy l1BlockNumber", "err", err)
@@ -1841,7 +1841,7 @@ func (s *TransactionAPI) GetTransactionReceipt(ctx context.Context, hash common.
 		if err != nil {
 			return nil, err
 		}
-		if s.b.ChainConfig().IsMantleNitro(header.Number) {
+		if s.b.ChainConfig().IsMantleMantle(header.Number) {
 			fields["effectiveGasPrice"] = hexutil.Uint64(header.BaseFee.Uint64())
 			info, err := types.DeserializeHeaderExtraInformation(header)
 			if err != nil {
