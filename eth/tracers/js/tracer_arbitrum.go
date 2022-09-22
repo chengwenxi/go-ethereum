@@ -24,10 +24,10 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 )
 
-func (jst *jsTracer) CaptureArbitrumTransfer(
+func (jst *jsTracer) CaptureMantleTransfer(
 	env *vm.EVM, from, to *common.Address, value *big.Int, before bool, purpose string,
 ) {
-	traceTransfer, ok := goja.AssertFunction(jst.obj.Get("captureArbitrumTransfer"))
+	traceTransfer, ok := goja.AssertFunction(jst.obj.Get("captureMantleTransfer"))
 	if !ok {
 		return
 	}
@@ -49,9 +49,9 @@ func (jst *jsTracer) CaptureArbitrumTransfer(
 	transfer.Set("purpose", purpose)
 
 	if _, err := traceTransfer(transfer); err != nil {
-		jst.err = wrapError("captureArbitrumTransfer", err)
+		jst.err = wrapError("captureMantleTransfer", err)
 	}
 }
 
-func (*jsTracer) CaptureArbitrumStorageGet(key common.Hash, depth int, before bool)        {}
-func (*jsTracer) CaptureArbitrumStorageSet(key, value common.Hash, depth int, before bool) {}
+func (*jsTracer) CaptureMantleStorageGet(key common.Hash, depth int, before bool)        {}
+func (*jsTracer) CaptureMantleStorageSet(key, value common.Hash, depth int, before bool) {}

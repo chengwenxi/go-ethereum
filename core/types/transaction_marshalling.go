@@ -46,7 +46,7 @@ type txJSON struct {
 	ChainID    *hexutil.Big `json:"chainId,omitempty"`
 	AccessList *AccessList  `json:"accessList,omitempty"`
 
-	// Arbitrum fields:
+	// Mantle fields:
 	From                *common.Address `json:"from,omitempty"`                // Contract SubmitRetryable Unsigned Retry
 	RequestId           *common.Hash    `json:"requestId,omitempty"`           // Contract SubmitRetryable Deposit
 	TicketId            *common.Hash    `json:"ticketId,omitempty"`            // Retry
@@ -60,10 +60,10 @@ type txJSON struct {
 	RetryData           *hexutil.Bytes  `json:"retryData,omitempty"`           // SubmitRetryable
 	Beneficiary         *common.Address `json:"beneficiary,omitempty"`         // SubmitRetryable
 	MaxSubmissionFee    *hexutil.Big    `json:"maxSubmissionFee,omitempty"`    // SubmitRetryable
-	EffectiveGasPrice   *hexutil.Uint64 `json:"effectiveGasPrice,omitempty"`   // ArbLegacy
-	L1BlockNumber       *hexutil.Uint64 `json:"l1BlockNumber,omitempty"`       // ArbLegacy
+	EffectiveGasPrice   *hexutil.Uint64 `json:"effectiveGasPrice,omitempty"`   // MtLegacy
+	L1BlockNumber       *hexutil.Uint64 `json:"l1BlockNumber,omitempty"`       // MtLegacy
 
-	// Only used for encoding - and for ArbLegacy
+	// Only used for encoding - and for MtLegacy
 	Hash common.Hash `json:"hash"`
 }
 
@@ -74,7 +74,7 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 	enc.Hash = t.Hash()
 	enc.Type = hexutil.Uint64(t.Type())
 
-	// Arbitrum: set to 0 for compatibility
+	// Mantle: set to 0 for compatibility
 	var zero uint64
 	enc.Nonce = (*hexutil.Uint64)(&zero)
 	enc.Gas = (*hexutil.Uint64)(&zero)
@@ -122,7 +122,7 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 		enc.V = (*hexutil.Big)(tx.V)
 		enc.R = (*hexutil.Big)(tx.R)
 		enc.S = (*hexutil.Big)(tx.S)
-	case *ArbitrumLegacyTxData:
+	case *MantleLegacyTxData:
 		enc.Nonce = (*hexutil.Uint64)(&tx.Nonce)
 		enc.Gas = (*hexutil.Uint64)(&tx.Gas)
 		enc.GasPrice = (*hexutil.Big)(tx.GasPrice)
@@ -135,16 +135,16 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 		enc.EffectiveGasPrice = (*hexutil.Uint64)(&tx.EffectiveGasPrice)
 		enc.L1BlockNumber = (*hexutil.Uint64)(&tx.L1BlockNumber)
 		enc.From = tx.Sender
-	case *ArbitrumInternalTx:
+	case *MantleInternalTx:
 		enc.ChainID = (*hexutil.Big)(tx.ChainId)
 		enc.Data = (*hexutil.Bytes)(&tx.Data)
-	case *ArbitrumDepositTx:
+	case *MantleDepositTx:
 		enc.RequestId = &tx.L1RequestId
 		enc.From = &tx.From
 		enc.ChainID = (*hexutil.Big)(tx.ChainId)
 		enc.Value = (*hexutil.Big)(tx.Value)
 		enc.To = t.To()
-	case *ArbitrumUnsignedTx:
+	case *MantleUnsignedTx:
 		enc.From = (*common.Address)(&tx.From)
 		enc.ChainID = (*hexutil.Big)(tx.ChainId)
 		enc.Nonce = (*hexutil.Uint64)(&tx.Nonce)
@@ -153,7 +153,7 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 		enc.Value = (*hexutil.Big)(tx.Value)
 		enc.Data = (*hexutil.Bytes)(&tx.Data)
 		enc.To = t.To()
-	case *ArbitrumContractTx:
+	case *MantleContractTx:
 		enc.RequestId = &tx.RequestId
 		enc.From = (*common.Address)(&tx.From)
 		enc.ChainID = (*hexutil.Big)(tx.ChainId)
@@ -162,7 +162,7 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 		enc.Value = (*hexutil.Big)(tx.Value)
 		enc.Data = (*hexutil.Bytes)(&tx.Data)
 		enc.To = t.To()
-	case *ArbitrumRetryTx:
+	case *MantleRetryTx:
 		enc.From = (*common.Address)(&tx.From)
 		enc.TicketId = &tx.TicketId
 		enc.RefundTo = &tx.RefundTo
@@ -175,7 +175,7 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 		enc.MaxRefund = (*hexutil.Big)(tx.MaxRefund)
 		enc.SubmissionFeeRefund = (*hexutil.Big)(tx.SubmissionFeeRefund)
 		enc.To = t.To()
-	case *ArbitrumSubmitRetryableTx:
+	case *MantleSubmitRetryableTx:
 		enc.RequestId = &tx.RequestId
 		enc.From = &tx.From
 		enc.L1BaseFee = (*hexutil.Big)(tx.L1BaseFee)
@@ -361,7 +361,7 @@ func (t *Transaction) UnmarshalJSON(input []byte) error {
 			}
 		}
 
-	case ArbitrumLegacyTxType:
+	case MantleLegacyTxType:
 		var itx LegacyTx
 		if dec.To != nil {
 			itx.To = dec.To
@@ -410,7 +410,7 @@ func (t *Transaction) UnmarshalJSON(input []byte) error {
 		if dec.L1BlockNumber == nil {
 			return errors.New("missing required field 'L1BlockNumber' in transaction")
 		}
-		inner = &ArbitrumLegacyTxData{
+		inner = &MantleLegacyTxData{
 			LegacyTx:          itx,
 			HashOverride:      dec.Hash,
 			EffectiveGasPrice: uint64(*dec.EffectiveGasPrice),
@@ -418,19 +418,19 @@ func (t *Transaction) UnmarshalJSON(input []byte) error {
 			Sender:            dec.From,
 		}
 
-	case ArbitrumInternalTxType:
+	case MantleInternalTxType:
 		if dec.ChainID == nil {
 			return errors.New("missing required field 'chainId' in transaction")
 		}
 		if dec.Data == nil {
 			return errors.New("missing required field 'input' in transaction")
 		}
-		inner = &ArbitrumInternalTx{
+		inner = &MantleInternalTx{
 			ChainId: (*big.Int)(dec.ChainID),
 			Data:    *dec.Data,
 		}
 
-	case ArbitrumDepositTxType:
+	case MantleDepositTxType:
 		if dec.ChainID == nil {
 			return errors.New("missing required field 'chainId' in transaction")
 		}
@@ -446,7 +446,7 @@ func (t *Transaction) UnmarshalJSON(input []byte) error {
 		if dec.Value == nil {
 			return errors.New("missing required field 'value' in transaction")
 		}
-		inner = &ArbitrumDepositTx{
+		inner = &MantleDepositTx{
 			ChainId:     (*big.Int)(dec.ChainID),
 			L1RequestId: *dec.RequestId,
 			To:          *dec.To,
@@ -454,7 +454,7 @@ func (t *Transaction) UnmarshalJSON(input []byte) error {
 			Value:       (*big.Int)(dec.Value),
 		}
 
-	case ArbitrumUnsignedTxType:
+	case MantleUnsignedTxType:
 		if dec.ChainID == nil {
 			return errors.New("missing required field 'chainId' in transaction")
 		}
@@ -476,7 +476,7 @@ func (t *Transaction) UnmarshalJSON(input []byte) error {
 		if dec.Data == nil {
 			return errors.New("missing required field 'input' in transaction")
 		}
-		inner = &ArbitrumUnsignedTx{
+		inner = &MantleUnsignedTx{
 			ChainId:   (*big.Int)(dec.ChainID),
 			From:      *dec.From,
 			Nonce:     uint64(*dec.Nonce),
@@ -487,7 +487,7 @@ func (t *Transaction) UnmarshalJSON(input []byte) error {
 			Data:      *dec.Data,
 		}
 
-	case ArbitrumContractTxType:
+	case MantleContractTxType:
 		if dec.ChainID == nil {
 			return errors.New("missing required field 'chainId' in transaction")
 		}
@@ -509,7 +509,7 @@ func (t *Transaction) UnmarshalJSON(input []byte) error {
 		if dec.Data == nil {
 			return errors.New("missing required field 'input' in transaction")
 		}
-		inner = &ArbitrumContractTx{
+		inner = &MantleContractTx{
 			ChainId:   (*big.Int)(dec.ChainID),
 			RequestId: *dec.RequestId,
 			From:      *dec.From,
@@ -520,7 +520,7 @@ func (t *Transaction) UnmarshalJSON(input []byte) error {
 			Data:      *dec.Data,
 		}
 
-	case ArbitrumRetryTxType:
+	case MantleRetryTxType:
 		if dec.ChainID == nil {
 			return errors.New("missing required field 'chainId' in transaction")
 		}
@@ -554,7 +554,7 @@ func (t *Transaction) UnmarshalJSON(input []byte) error {
 		if dec.SubmissionFeeRefund == nil {
 			return errors.New("missing required field 'submissionFeeRefund' in transaction")
 		}
-		inner = &ArbitrumRetryTx{
+		inner = &MantleRetryTx{
 			ChainId:             (*big.Int)(dec.ChainID),
 			Nonce:               uint64(*dec.Nonce),
 			From:                *dec.From,
@@ -569,7 +569,7 @@ func (t *Transaction) UnmarshalJSON(input []byte) error {
 			SubmissionFeeRefund: (*big.Int)(dec.SubmissionFeeRefund),
 		}
 
-	case ArbitrumSubmitRetryableTxType:
+	case MantleSubmitRetryableTxType:
 		if dec.ChainID == nil {
 			return errors.New("missing required field 'chainId' in transaction")
 		}
@@ -609,7 +609,7 @@ func (t *Transaction) UnmarshalJSON(input []byte) error {
 		if dec.RetryData == nil {
 			return errors.New("missing required field 'retryData' in transaction")
 		}
-		inner = &ArbitrumSubmitRetryableTx{
+		inner = &MantleSubmitRetryableTx{
 			ChainId:          (*big.Int)(dec.ChainID),
 			RequestId:        *dec.RequestId,
 			From:             *dec.From,

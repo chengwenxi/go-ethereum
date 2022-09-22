@@ -27,10 +27,10 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
-// Installs an Arbitrum TxProcessor, enabling ArbOS for this state transition (see vm/evm_arbitrum.go)
+// Installs an Mantle TxProcessor, enabling MtOS for this state transition (see vm/evm_mantle.go)
 var ReadyEVMForL2 func(evm *vm.EVM, msg Message)
 
-// Allows ArbOS to swap out or return early from an RPC message to support the NodeInterface virtual contract
+// Allows MtOS to swap out or return early from an RPC message to support the NodeInterface virtual contract
 var InterceptRPCMessage = func(
 	msg types.Message,
 	ctx context.Context,
@@ -41,10 +41,10 @@ var InterceptRPCMessage = func(
 	return msg, nil, nil
 }
 
-// Gets ArbOS's maximum intended gas per second
-var GetArbOSSpeedLimitPerSecond func(statedb *state.StateDB) (uint64, error)
+// Gets MtOS's maximum intended gas per second
+var GetMtOSSpeedLimitPerSecond func(statedb *state.StateDB) (uint64, error)
 
-// Allows ArbOS to update the gas cap so that it ignores the message's specific L1 poster costs.
+// Allows MtOS to update the gas cap so that it ignores the message's specific L1 poster costs.
 var InterceptRPCGasCap = func(gascap *uint64, msg types.Message, header *types.Header, statedb *state.StateDB) {}
 
 // Renders a solidity error in human-readable form

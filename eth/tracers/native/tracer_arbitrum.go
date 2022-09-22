@@ -23,17 +23,17 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 )
 
-type arbitrumTransfer struct {
+type mantleTransfer struct {
 	Purpose string  `json:"purpose"`
 	From    *string `json:"from"`
 	To      *string `json:"to"`
 	Value   string  `json:"value"`
 }
 
-func (t *callTracer) CaptureArbitrumTransfer(
+func (t *callTracer) CaptureMantleTransfer(
 	env *vm.EVM, from, to *common.Address, value *big.Int, before bool, purpose string,
 ) {
-	transfer := arbitrumTransfer{
+	transfer := mantleTransfer{
 		Purpose: purpose,
 		Value:   bigToHex(value),
 	}
@@ -52,24 +52,24 @@ func (t *callTracer) CaptureArbitrumTransfer(
 	}
 }
 
-func (*fourByteTracer) CaptureArbitrumTransfer(env *vm.EVM, from, to *common.Address, value *big.Int, before bool, purpose string) {
+func (*fourByteTracer) CaptureMantleTransfer(env *vm.EVM, from, to *common.Address, value *big.Int, before bool, purpose string) {
 }
-func (*noopTracer) CaptureArbitrumTransfer(env *vm.EVM, from, to *common.Address, value *big.Int, before bool, purpose string) {
+func (*noopTracer) CaptureMantleTransfer(env *vm.EVM, from, to *common.Address, value *big.Int, before bool, purpose string) {
 }
-func (*prestateTracer) CaptureArbitrumTransfer(env *vm.EVM, from, to *common.Address, value *big.Int, before bool, purpose string) {
+func (*prestateTracer) CaptureMantleTransfer(env *vm.EVM, from, to *common.Address, value *big.Int, before bool, purpose string) {
 }
-func (*revertReasonTracer) CaptureArbitrumTransfer(env *vm.EVM, from, to *common.Address, value *big.Int, before bool, purpose string) {
+func (*revertReasonTracer) CaptureMantleTransfer(env *vm.EVM, from, to *common.Address, value *big.Int, before bool, purpose string) {
 }
 
-func (*callTracer) CaptureArbitrumStorageGet(key common.Hash, depth int, before bool)         {}
-func (*fourByteTracer) CaptureArbitrumStorageGet(key common.Hash, depth int, before bool)     {}
-func (*noopTracer) CaptureArbitrumStorageGet(key common.Hash, depth int, before bool)         {}
-func (*prestateTracer) CaptureArbitrumStorageGet(key common.Hash, depth int, before bool)     {}
-func (*revertReasonTracer) CaptureArbitrumStorageGet(key common.Hash, depth int, before bool) {}
+func (*callTracer) CaptureMantleStorageGet(key common.Hash, depth int, before bool)         {}
+func (*fourByteTracer) CaptureMantleStorageGet(key common.Hash, depth int, before bool)     {}
+func (*noopTracer) CaptureMantleStorageGet(key common.Hash, depth int, before bool)         {}
+func (*prestateTracer) CaptureMantleStorageGet(key common.Hash, depth int, before bool)     {}
+func (*revertReasonTracer) CaptureMantleStorageGet(key common.Hash, depth int, before bool) {}
 
-func (*callTracer) CaptureArbitrumStorageSet(key, value common.Hash, depth int, before bool)     {}
-func (*fourByteTracer) CaptureArbitrumStorageSet(key, value common.Hash, depth int, before bool) {}
-func (*noopTracer) CaptureArbitrumStorageSet(key, value common.Hash, depth int, before bool)     {}
-func (*prestateTracer) CaptureArbitrumStorageSet(key, value common.Hash, depth int, before bool) {}
-func (*revertReasonTracer) CaptureArbitrumStorageSet(key, value common.Hash, depth int, before bool) {
+func (*callTracer) CaptureMantleStorageSet(key, value common.Hash, depth int, before bool)     {}
+func (*fourByteTracer) CaptureMantleStorageSet(key, value common.Hash, depth int, before bool) {}
+func (*noopTracer) CaptureMantleStorageSet(key, value common.Hash, depth int, before bool)     {}
+func (*prestateTracer) CaptureMantleStorageSet(key, value common.Hash, depth int, before bool) {}
+func (*revertReasonTracer) CaptureMantleStorageSet(key, value common.Hash, depth int, before bool) {
 }

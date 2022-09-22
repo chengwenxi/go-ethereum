@@ -1768,7 +1768,7 @@ func testRepair(t *testing.T, tt *rewindTest, snapshots bool) {
 		engine  = ethash.NewFullFaker()
 		config  = &CacheConfig{
 
-			// Arbitrum
+			// Mantle
 			TriesInMemory: 128,
 			TrieRetention: 30 * time.Minute,
 
@@ -1897,7 +1897,7 @@ func TestIssue23496(t *testing.T) {
 		engine  = ethash.NewFullFaker()
 		config  = &CacheConfig{
 
-			// Arbitrum
+			// Mantle
 			TriesInMemory: 128,
 			TrieRetention: 30 * time.Minute,
 

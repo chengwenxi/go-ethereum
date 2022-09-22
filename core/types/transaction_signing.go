@@ -51,8 +51,8 @@ func MakeSigner(config *params.ChainConfig, blockNumber *big.Int) Signer {
 	default:
 		signer = FrontierSigner{}
 	}
-	if config.IsArbitrum() {
-		signer = NewArbitrumSigner(signer)
+	if config.IsMantle() {
+		signer = NewMantleSigner(signer)
 	}
 	return signer
 }
@@ -80,7 +80,7 @@ func latestSignerImpl(config *params.ChainConfig) Signer {
 }
 
 func LatestSigner(config *params.ChainConfig) Signer {
-	return NewArbitrumSigner(latestSignerImpl(config))
+	return NewMantleSigner(latestSignerImpl(config))
 }
 
 // LatestSignerForChainID returns the 'most permissive' Signer available. Specifically,
@@ -98,7 +98,7 @@ func latestSignerForChainIDImpl(chainID *big.Int) Signer {
 }
 
 func LatestSignerForChainID(chainID *big.Int) Signer {
-	return NewArbitrumSigner(latestSignerForChainIDImpl(chainID))
+	return NewMantleSigner(latestSignerForChainIDImpl(chainID))
 }
 
 // SignTx signs the transaction using the given signer and private key.

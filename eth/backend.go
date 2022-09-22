@@ -193,7 +193,7 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 		}
 		cacheConfig = &core.CacheConfig{
 
-			// Arbitrum
+			// Mantle
 			TriesInMemory: 128,
 			TrieRetention: 30 * time.Minute,
 

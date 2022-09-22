@@ -90,7 +90,7 @@ type ExecutionResult struct {
 	Err        error  // Any error encountered during the execution(listed in core/vm/errors.go)
 	ReturnData []byte // Returned data from evm(function result or data supplied with revert opcode)
 
-	// Arbitrum: a tx may yield others that need to run afterward (see retryables)
+	// Mantle: a tx may yield others that need to run afterward (see retryables)
 	ScheduledTxes types.Transactions
 }
 
@@ -219,10 +219,10 @@ func (st *StateTransition) buyGas() error {
 	st.initialGas = st.msg.Gas()
 	st.state.SubBalance(st.msg.From(), mgval)
 
-	// Arbitrum: record fee payment
+	// Mantle: record fee payment
 	if st.evm.Config.Debug {
 		from := st.msg.From()
-		st.evm.Config.Tracer.CaptureArbitrumTransfer(st.evm, &from, nil, mgval, true, "feePayment")
+		st.evm.Config.Tracer.CaptureMantleTransfer(st.evm, &from, nil, mgval, true, "feePayment")
 	}
 
 	return nil
@@ -310,8 +310,8 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 	// 5. there is no overflow when calculating intrinsic gas
 	// 6. caller has enough balance to cover asset transfer for **topmost** call
 
-	// Arbitrum: drop support for tips from upgrade 2 onward
-	if st.evm.ChainConfig().IsArbitrum() && st.gasPrice.Cmp(st.evm.Context.BaseFee) > 0 {
+	// Mantle: drop support for tips from upgrade 2 onward
+	if st.evm.ChainConfig().IsMantle() && st.gasPrice.Cmp(st.evm.Context.BaseFee) > 0 {
 		st.gasPrice = st.evm.Context.BaseFee
 		st.gasTipCap = common.Big0
 	}
@@ -390,19 +390,19 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 		fee.Mul(fee, effectiveTip)
 		st.state.AddBalance(st.evm.Context.Coinbase, fee)
 
-		// Arbitrum: record the tip if nonzero (this should never happen in L2)
+		// Mantle: record the tip if nonzero (this should never happen in L2)
 		if st.evm.Config.Debug {
-			st.evm.Config.Tracer.CaptureArbitrumTransfer(st.evm, nil, &st.evm.Context.Coinbase, fee, false, "tip")
+			st.evm.Config.Tracer.CaptureMantleTransfer(st.evm, nil, &st.evm.Context.Coinbase, fee, false, "tip")
 		}
 	}
 
 	st.evm.ProcessingHook.EndTxHook(st.gas, vmerr == nil)
 
-	// Arbitrum: record self destructs
+	// Mantle: record self destructs
 	if st.evm.Config.Debug {
 		for _, address := range st.evm.StateDB.GetSuicides() {
 			balance := st.evm.StateDB.GetBalance(address)
-			st.evm.Config.Tracer.CaptureArbitrumTransfer(st.evm, &address, nil, balance, false, "selfDestruct")
+			st.evm.Config.Tracer.CaptureMantleTransfer(st.evm, &address, nil, balance, false, "selfDestruct")
 		}
 	}
 
@@ -432,10 +432,10 @@ func (st *StateTransition) refundGas(refundQuotient uint64) {
 	remaining := new(big.Int).Mul(new(big.Int).SetUint64(st.gas), st.gasPrice)
 	st.state.AddBalance(st.msg.From(), remaining)
 
-	// Arbitrum: record the gas refund
+	// Mantle: record the gas refund
 	if st.evm.Config.Debug {
 		from := st.msg.From()
-		st.evm.Config.Tracer.CaptureArbitrumTransfer(st.evm, nil, &from, remaining, false, "gasRefund")
+		st.evm.Config.Tracer.CaptureMantleTransfer(st.evm, nil, &from, remaining, false, "gasRefund")
 	}
 
 	// Also return remaining gas to the block gas counter so it is

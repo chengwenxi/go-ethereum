@@ -45,13 +45,13 @@ const (
 	LegacyTxType = iota
 	AccessListTxType
 	DynamicFeeTxType
-	ArbitrumDepositTxType         = 100
-	ArbitrumUnsignedTxType        = 101
-	ArbitrumContractTxType        = 102
-	ArbitrumRetryTxType           = 104
-	ArbitrumSubmitRetryableTxType = 105
-	ArbitrumInternalTxType        = 106
-	ArbitrumLegacyTxType          = 120
+	MantleDepositTxType         = 100
+	MantleUnsignedTxType        = 101
+	MantleContractTxType        = 102
+	MantleRetryTxType           = 104
+	MantleSubmitRetryableTxType = 105
+	MantleInternalTxType        = 106
+	MantleLegacyTxType          = 120
 )
 
 // Transaction is an Ethereum transaction.
@@ -59,7 +59,7 @@ type Transaction struct {
 	inner TxData    // Consensus contents of a transaction
 	time  time.Time // Time first seen locally (spam avoidance)
 
-	// Arbitrum cache: must be atomically accessed
+	// Mantle cache: must be atomically accessed
 	CalldataUnits uint64
 
 	// caches
@@ -183,34 +183,34 @@ func (tx *Transaction) UnmarshalBinary(b []byte) error {
 }
 
 // decodeTyped decodes a typed transaction from the canonical format.
-func (tx *Transaction) decodeTyped(b []byte, arbParsing bool) (TxData, error) {
+func (tx *Transaction) decodeTyped(b []byte, mtParsing bool) (TxData, error) {
 	if len(b) <= 1 {
 		return nil, errShortTypedTx
 	}
-	if arbParsing {
+	if mtParsing {
 		switch b[0] {
-		case ArbitrumDepositTxType:
-			var inner ArbitrumDepositTx
+		case MantleDepositTxType:
+			var inner MantleDepositTx
 			err := rlp.DecodeBytes(b[1:], &inner)
 			return &inner, err
-		case ArbitrumInternalTxType:
-			var inner ArbitrumInternalTx
+		case MantleInternalTxType:
+			var inner MantleInternalTx
 			err := rlp.DecodeBytes(b[1:], &inner)
 			return &inner, err
-		case ArbitrumUnsignedTxType:
-			var inner ArbitrumUnsignedTx
+		case MantleUnsignedTxType:
+			var inner MantleUnsignedTx
 			err := rlp.DecodeBytes(b[1:], &inner)
 			return &inner, err
-		case ArbitrumContractTxType:
-			var inner ArbitrumContractTx
+		case MantleContractTxType:
+			var inner MantleContractTx
 			err := rlp.DecodeBytes(b[1:], &inner)
 			return &inner, err
-		case ArbitrumRetryTxType:
-			var inner ArbitrumRetryTx
+		case MantleRetryTxType:
+			var inner MantleRetryTx
 			err := rlp.DecodeBytes(b[1:], &inner)
 			return &inner, err
-		case ArbitrumSubmitRetryableTxType:
-			var inner ArbitrumSubmitRetryableTx
+		case MantleSubmitRetryableTxType:
+			var inner MantleSubmitRetryableTx
 			err := rlp.DecodeBytes(b[1:], &inner)
 			return &inner, err
 		}
@@ -224,8 +224,8 @@ func (tx *Transaction) decodeTyped(b []byte, arbParsing bool) (TxData, error) {
 		var inner DynamicFeeTx
 		err := rlp.DecodeBytes(b[1:], &inner)
 		return &inner, err
-	case ArbitrumLegacyTxType:
-		var inner ArbitrumLegacyTxData
+	case MantleLegacyTxType:
+		var inner MantleLegacyTxData
 		err := rlp.DecodeBytes(b[1:], &inner)
 		return &inner, err
 	default:
@@ -413,8 +413,8 @@ func (tx *Transaction) Hash() common.Hash {
 	var h common.Hash
 	if tx.Type() == LegacyTxType {
 		h = rlpHash(tx.inner)
-	} else if tx.Type() == ArbitrumLegacyTxType {
-		h = tx.inner.(*ArbitrumLegacyTxData).HashOverride
+	} else if tx.Type() == MantleLegacyTxType {
+		h = tx.inner.(*MantleLegacyTxData).HashOverride
 	} else {
 		h = prefixedRlpHash(tx.Type(), tx.inner)
 	}
@@ -459,9 +459,9 @@ func (s Transactions) EncodeIndex(i int, w *bytes.Buffer) {
 	tx := s[i]
 	if tx.Type() == LegacyTxType {
 		rlp.Encode(w, tx.inner)
-	} else if tx.Type() == ArbitrumLegacyTxType {
-		arbData := tx.inner.(*ArbitrumLegacyTxData)
-		arbData.EncodeOnlyLegacyInto(w)
+	} else if tx.Type() == MantleLegacyTxType {
+		mtData := tx.inner.(*MantleLegacyTxData)
+		mtData.EncodeOnlyLegacyInto(w)
 	} else {
 		tx.encodeTyped(w)
 	}

@@ -132,7 +132,7 @@ type CacheConfig struct {
 	SnapshotLimit       int           // Memory allowance (MB) to use for caching snapshot entries in memory
 	Preimages           bool          // Whether to store preimage of trie key to the disk
 
-	// Arbitrum: configure GC window
+	// Mantle: configure GC window
 	TriesInMemory uint64        // Height difference before which a trie may not be garbage-collected
 	TrieRetention time.Duration // Time limit before which a trie may not be garbage-collected
 
@@ -143,7 +143,7 @@ type CacheConfig struct {
 // user (also used during testing).
 var defaultCacheConfig = &CacheConfig{
 
-	// Arbitrum Config Options
+	// Mantle Config Options
 	TriesInMemory: 128,
 	TrieRetention: 30 * time.Minute,
 
@@ -274,7 +274,11 @@ func NewBlockChain(db ethdb.Database, cacheConfig *CacheConfig, chainConfig *par
 	if err != nil {
 		return nil, err
 	}
-	bc.genesisBlock = bc.GetBlockByNumber(0)
+	if chainConfig.IsMantle() {
+		bc.genesisBlock = bc.GetBlockByNumber(chainConfig.MantleChainParams.GenesisBlockNum)
+	} else {
+		bc.genesisBlock = bc.GetBlockByNumber(0)
+	}
 	if bc.genesisBlock == nil {
 		return nil, ErrNoGenesis
 	}
@@ -601,8 +605,8 @@ func (bc *BlockChain) setHeadBeyondRoot(head uint64, root common.Hash, repair bo
 							newHeadBlock = bc.genesisBlock
 						}
 					}
-					if beyondRoot || newHeadBlock.NumberU64() == 0 {
-						if newHeadBlock.NumberU64() == 0 {
+					if beyondRoot || newHeadBlock.NumberU64() <= bc.genesisBlock.NumberU64() {
+						if newHeadBlock.NumberU64() <= bc.genesisBlock.NumberU64() {
 							// Recommit the genesis state into disk in case the rewinding destination
 							// is genesis block and the relevant state is gone. In the future this
 							// rewinding destination can be the earliest block stored in the chain
@@ -615,6 +619,7 @@ func (bc *BlockChain) setHeadBeyondRoot(head uint64, root common.Hash, repair bo
 								log.Debug("Recommitted genesis state to disk")
 							}
 						}
+						newHeadBlock = bc.genesisBlock
 						log.Debug("Rewound to block with state", "number", newHeadBlock.NumberU64(), "hash", newHeadBlock.Hash())
 						break
 					}

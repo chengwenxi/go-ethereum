@@ -8,7 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethdb"
 )
 
-func NewArbEthereum(
+func NewMtEthereum(
 	blockchain *core.BlockChain,
 	chainDb ethdb.Database,
 ) *Ethereum {
