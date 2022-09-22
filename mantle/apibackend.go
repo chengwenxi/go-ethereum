@@ -127,11 +127,11 @@ func (a *APIBackend) GetAPIs() []rpc.API {
 }
 
 func (a *APIBackend) blockChain() *core.BlockChain {
-	return a.b.arb.BlockChain()
+	return a.b.mt.BlockChain()
 }
 
 func (a *APIBackend) GetMantleNode() interface{} {
-	return a.b.arb.MtNode()
+	return a.b.mt.MtNode()
 }
 
 // General Ethereum API
@@ -163,7 +163,7 @@ func (a *APIBackend) FeeHistory(
 ) (*big.Int, [][]*big.Int, []*big.Int, []float64, error) {
 
 	if core.GetMtOSSpeedLimitPerSecond == nil {
-		return nil, nil, nil, nil, errors.New("ArbOS not installed")
+		return nil, nil, nil, nil, errors.New("MtOS not installed")
 	}
 
 	mantleGenesis := rpc.BlockNumber(a.ChainConfig().MantleChainParams.GenesisBlockNum)
@@ -397,7 +397,7 @@ func (a *APIBackend) StateAtBlock(ctx context.Context, block *types.Block, reexe
 		return nil, types.ErrUseFallback
 	}
 	// DEV: This assumes that `StateAtBlock` only accesses the blockchain and chainDb fields
-	return eth.NewArbEthereum(a.b.arb.BlockChain(), a.ChainDb()).StateAtBlock(block, reexec, base, checkLive, preferDisk)
+	return eth.NewMtEthereum(a.b.mt.BlockChain(), a.ChainDb()).StateAtBlock(block, reexec, base, checkLive, preferDisk)
 }
 
 func (a *APIBackend) StateAtTransaction(ctx context.Context, block *types.Block, txIndex int, reexec uint64) (core.Message, vm.BlockContext, *state.StateDB, error) {
@@ -405,7 +405,7 @@ func (a *APIBackend) StateAtTransaction(ctx context.Context, block *types.Block,
 		return nil, vm.BlockContext{}, nil, types.ErrUseFallback
 	}
 	// DEV: This assumes that `StateAtTransaction` only accesses the blockchain and chainDb fields
-	return eth.NewArbEthereum(a.b.arb.BlockChain(), a.ChainDb()).StateAtTransaction(block, txIndex, reexec)
+	return eth.NewMtEthereum(a.b.mt.BlockChain(), a.ChainDb()).StateAtTransaction(block, txIndex, reexec)
 }
 
 func (a *APIBackend) GetReceipts(ctx context.Context, hash common.Hash) (types.Receipts, error) {

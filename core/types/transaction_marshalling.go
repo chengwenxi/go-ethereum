@@ -60,10 +60,10 @@ type txJSON struct {
 	RetryData           *hexutil.Bytes  `json:"retryData,omitempty"`           // SubmitRetryable
 	Beneficiary         *common.Address `json:"beneficiary,omitempty"`         // SubmitRetryable
 	MaxSubmissionFee    *hexutil.Big    `json:"maxSubmissionFee,omitempty"`    // SubmitRetryable
-	EffectiveGasPrice   *hexutil.Uint64 `json:"effectiveGasPrice,omitempty"`   // ArbLegacy
-	L1BlockNumber       *hexutil.Uint64 `json:"l1BlockNumber,omitempty"`       // ArbLegacy
+	EffectiveGasPrice   *hexutil.Uint64 `json:"effectiveGasPrice,omitempty"`   // MtLegacy
+	L1BlockNumber       *hexutil.Uint64 `json:"l1BlockNumber,omitempty"`       // MtLegacy
 
-	// Only used for encoding - and for ArbLegacy
+	// Only used for encoding - and for MtLegacy
 	Hash common.Hash `json:"hash"`
 }
 

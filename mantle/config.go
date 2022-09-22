@@ -26,7 +26,7 @@ type Config struct {
 	// FeeHistoryMaxBlockCount limits the number of historical blocks a fee history request may cover
 	FeeHistoryMaxBlockCount uint64 `koanf:"feehistory-max-block-count"`
 
-	MtDebug MtDebugConfig `koanf:"arbdebug"`
+	MtDebug MtDebugConfig `koanf:"mtdebug"`
 
 	ClassicRedirect        string        `koanf:"classic-redirect"`
 	ClassicRedirectTimeout time.Duration `koanf:"classic-redirect-timeout"`
@@ -46,9 +46,9 @@ func ConfigAddOptions(prefix string, f *flag.FlagSet) {
 	f.String(prefix+".classic-redirect", DefaultConfig.ClassicRedirect, "url to redirect classic requests, use \"error:[CODE:]MESSAGE\" to return specified error instead of redirecting")
 	f.Duration(prefix+".classic-redirect-timeout", DefaultConfig.ClassicRedirectTimeout, "timeout for forwarded classic requests, where 0 = no timeout")
 
-	arbDebug := DefaultConfig.MtDebug
-	f.Uint64(prefix+".arbdebug.block-range-bound", arbDebug.BlockRangeBound, "bounds the number of blocks arbdebug calls may return")
-	f.Uint64(prefix+".arbdebug.timeout-queue-bound", arbDebug.TimeoutQueueBound, "bounds the length of timeout queues arbdebug calls may return")
+	mtDebug := DefaultConfig.MtDebug
+	f.Uint64(prefix+".mtdebug.block-range-bound", mtDebug.BlockRangeBound, "bounds the number of blocks mtdebug calls may return")
+	f.Uint64(prefix+".mtdebug.timeout-queue-bound", mtDebug.TimeoutQueueBound, "bounds the length of timeout queues mtdebug calls may return")
 }
 
 var DefaultConfig = Config{

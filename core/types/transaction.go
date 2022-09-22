@@ -183,11 +183,11 @@ func (tx *Transaction) UnmarshalBinary(b []byte) error {
 }
 
 // decodeTyped decodes a typed transaction from the canonical format.
-func (tx *Transaction) decodeTyped(b []byte, arbParsing bool) (TxData, error) {
+func (tx *Transaction) decodeTyped(b []byte, mtParsing bool) (TxData, error) {
 	if len(b) <= 1 {
 		return nil, errShortTypedTx
 	}
-	if arbParsing {
+	if mtParsing {
 		switch b[0] {
 		case MantleDepositTxType:
 			var inner MantleDepositTx
@@ -460,8 +460,8 @@ func (s Transactions) EncodeIndex(i int, w *bytes.Buffer) {
 	if tx.Type() == LegacyTxType {
 		rlp.Encode(w, tx.inner)
 	} else if tx.Type() == MantleLegacyTxType {
-		arbData := tx.inner.(*MantleLegacyTxData)
-		arbData.EncodeOnlyLegacyInto(w)
+		mtData := tx.inner.(*MantleLegacyTxData)
+		mtData.EncodeOnlyLegacyInto(w)
 	} else {
 		tx.encodeTyped(w)
 	}

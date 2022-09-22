@@ -1036,8 +1036,8 @@ func newRevertError(result *core.ExecutionResult) *revertError {
 		err = fmt.Errorf("execution reverted: %v", reason)
 	}
 	if core.RenderRPCError != nil {
-		if arbErr := core.RenderRPCError(result.Revert()); arbErr != nil {
-			err = arbErr
+		if mtErr := core.RenderRPCError(result.Revert()); mtErr != nil {
+			err = mtErr
 		}
 	}
 	return &revertError{
@@ -1332,7 +1332,7 @@ func (s *BlockChainAPI) rpcMarshalHeader(ctx context.Context, header *types.Head
 	return fields
 }
 
-func (s *BlockChainAPI) arbClassicL1BlockNumber(ctx context.Context, block *types.Block) (hexutil.Uint64, error) {
+func (s *BlockChainAPI) mtClassicL1BlockNumber(ctx context.Context, block *types.Block) (hexutil.Uint64, error) {
 	startBlockNum := block.Number().Int64()
 	blockNum := startBlockNum
 	i := int64(0)
@@ -1373,7 +1373,7 @@ func (s *BlockChainAPI) rpcMarshalBlock(ctx context.Context, b *types.Block, inc
 		fields["totalDifficulty"] = (*hexutil.Big)(s.b.GetTd(ctx, b.Hash()))
 	}
 	if chainConfig.IsMantle() && !chainConfig.IsMantleMantle(b.Number()) {
-		l1BlockNumber, err := s.arbClassicL1BlockNumber(ctx, b)
+		l1BlockNumber, err := s.mtClassicL1BlockNumber(ctx, b)
 		if err != nil {
 			log.Error("error trying to fill legacy l1BlockNumber", "err", err)
 		} else {
@@ -1851,12 +1851,12 @@ func (s *TransactionAPI) GetTransactionReceipt(ctx context.Context, hash common.
 			}
 		} else {
 			inner := tx.GetInner()
-			arbTx, ok := inner.(*types.MantleLegacyTxData)
+			mtTx, ok := inner.(*types.MantleLegacyTxData)
 			if !ok {
 				log.Error("Expected transaction to contain mantle data", "txHash", tx.Hash())
 			} else {
-				fields["effectiveGasPrice"] = hexutil.Uint64(arbTx.EffectiveGasPrice)
-				fields["l1BlockNumber"] = hexutil.Uint64(arbTx.L1BlockNumber)
+				fields["effectiveGasPrice"] = hexutil.Uint64(mtTx.EffectiveGasPrice)
+				fields["l1BlockNumber"] = hexutil.Uint64(mtTx.L1BlockNumber)
 			}
 		}
 	}

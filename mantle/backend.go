@@ -13,7 +13,7 @@ import (
 )
 
 type Backend struct {
-	arb        MtInterface
+	mt         MtInterface
 	stack      *node.Node
 	apiBackend *APIBackend
 	config     *Config
@@ -34,7 +34,7 @@ type Backend struct {
 
 func NewBackend(stack *node.Node, config *Config, chainDb ethdb.Database, publisher MtInterface, sync SyncProgressBackend) (*Backend, error) {
 	backend := &Backend{
-		arb:     publisher,
+		mt:      publisher,
 		stack:   stack,
 		config:  config,
 		chainDb: chainDb,
@@ -49,7 +49,7 @@ func NewBackend(stack *node.Node, config *Config, chainDb ethdb.Database, publis
 		chanNewBlock: make(chan struct{}, 1),
 	}
 
-	backend.bloomIndexer.Start(backend.arb.BlockChain())
+	backend.bloomIndexer.Start(backend.mt.BlockChain())
 	err := createRegisterAPIBackend(backend, sync, config.ClassicRedirect, config.ClassicRedirectTimeout)
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func (b *Backend) ChainDb() ethdb.Database {
 }
 
 func (b *Backend) EnqueueL2Message(ctx context.Context, tx *types.Transaction) error {
-	return b.arb.PublishTransaction(ctx, tx)
+	return b.mt.PublishTransaction(ctx, tx)
 }
 
 func (b *Backend) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription {
@@ -79,7 +79,7 @@ func (b *Backend) Stack() *node.Node {
 }
 
 func (b *Backend) MtInterface() MtInterface {
-	return b.arb
+	return b.mt
 }
 
 // TODO: this is used when registering backend as lifecycle in stack

@@ -76,7 +76,7 @@ func (s mantleSigner) SignatureValues(tx *Transaction, sig []byte) (R, S, V *big
 // Hash returns the hash to be signed by the sender.
 // It does not uniquely identify the transaction.
 func (s mantleSigner) Hash(tx *Transaction) common.Hash {
-	if legacyData, isArbLegacy := tx.inner.(*MantleLegacyTxData); isArbLegacy {
+	if legacyData, isMtLegacy := tx.inner.(*MantleLegacyTxData); isMtLegacy {
 		fakeTx := NewTx(&legacyData.LegacyTx)
 		return s.Signer.Hash(fakeTx)
 	}

@@ -104,7 +104,7 @@ type storedReceiptRLP struct {
 	Logs              []*LogForStorage
 }
 
-type arbLegacyStoredReceiptRLP struct {
+type mtLegacyStoredReceiptRLP struct {
 	PostStateOrStatus []byte
 	CumulativeGasUsed uint64
 	GasUsed           uint64
@@ -341,7 +341,7 @@ func (r *ReceiptForStorage) DecodeRLP(s *rlp.Stream) error {
 }
 
 func decodeMantleLegacyStoredReceiptRLP(r *ReceiptForStorage, blob []byte) error {
-	var stored arbLegacyStoredReceiptRLP
+	var stored mtLegacyStoredReceiptRLP
 	if err := rlp.DecodeBytes(blob, &stored); err != nil {
 		return err
 	}

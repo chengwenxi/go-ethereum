@@ -51,10 +51,10 @@ func (c *ChainConfig) checkMantleCompatible(newcfg *ChainConfig, head *big.Int) 
 	if !c.IsMantle() {
 		return nil
 	}
-	cArb := &c.MantleChainParams
-	newArb := &newcfg.MantleChainParams
-	if cArb.GenesisBlockNum != newArb.GenesisBlockNum {
-		return newCompatError("genesisblocknum", new(big.Int).SetUint64(cArb.GenesisBlockNum), new(big.Int).SetUint64(newArb.GenesisBlockNum))
+	cMt := &c.MantleChainParams
+	newMt := &newcfg.MantleChainParams
+	if cMt.GenesisBlockNum != newMt.GenesisBlockNum {
+		return newCompatError("genesisblocknum", new(big.Int).SetUint64(cMt.GenesisBlockNum), new(big.Int).SetUint64(newMt.GenesisBlockNum))
 	}
 	return nil
 }
