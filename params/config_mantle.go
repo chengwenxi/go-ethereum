@@ -104,7 +104,7 @@ func MantleDevTestParams() MantleChainParams {
 		EnableMtOS:                true,
 		AllowDebugPrecompiles:     true,
 		DataAvailabilityCommittee: false,
-		InitialMtOSVersion:        6,
+		InitialMtOSVersion:        7,
 		InitialChainOwner:         common.Address{},
 	}
 }
@@ -114,7 +114,7 @@ func MantleDevTestDASParams() MantleChainParams {
 		EnableMtOS:                true,
 		AllowDebugPrecompiles:     true,
 		DataAvailabilityCommittee: true,
-		InitialMtOSVersion:        6,
+		InitialMtOSVersion:        7,
 		InitialChainOwner:         common.Address{},
 	}
 }
